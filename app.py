@@ -39,24 +39,29 @@ st.set_page_config(
     layout="wide"
 )
 
-# 모바일 화면 가독성 향상 반응형 CSS
+# 모바일 화면 가독성 및 글자 색상 고정 CSS
 st.markdown("""
     <style>
-    /* 배경 파스텔 톤 및 글꼴 기본 설정 */
     .stApp {
         background: linear-gradient(135deg, #FAFAFC 0%, #F0F4FF 50%, #FFF0F5 100%);
-        color: #2D3748;
+        color: #2D3748 !important;
     }
     h1 { color: #4A5568 !important; font-weight: 800; }
-    h3, .stCaption { color: #718096 !important; }
+    h3, .stCaption, label, p, span { color: #2D3748 !important; }
     
-    /* 입력 위젯 모바일 맞춤 디자인 */
+    /* 입력 위젯 및 라디오 버튼 가독성 수정 */
     .stTextInput > div > div > input, .stSelectbox > div > div > div, .stTextArea > div > div > textarea {
         background-color: #FFFFFF !important;
         border: 2px solid #E2E8F0 !important;
         border-radius: 12px !important;
         color: #2D3748 !important;
-        font-size: 16px !important; /* 모바일 터치 시 자동 확대 방지 */
+        font-size: 16px !important;
+    }
+
+    /* 라디오 버튼 텍스트 글자색 강제 고정 */
+    div[data-testid="stRadio"] label span {
+        color: #2D3748 !important;
+        font-weight: 600 !important;
     }
     
     /* 모바일 풀사이즈 터치 버튼 */
@@ -68,7 +73,7 @@ st.markdown("""
         padding: 14px 20px !important;
         font-weight: 700 !important;
         font-size: 16px !important;
-        width: 100% !important; /* 모바일 풀 너비 버튼 */
+        width: 100% !important;
         box-shadow: 0 4px 14px 0 rgba(167, 139, 250, 0.35) !important;
         transition: all 0.3s ease !important;
     }
@@ -77,7 +82,6 @@ st.markdown("""
         box-shadow: 0 6px 20px 0 rgba(244, 114, 182, 0.45) !important;
     }
 
-    /* 모바일 작은 화면 대응 여백 조절 */
     @media (max-width: 768px) {
         .stApp { padding: 10px !important; }
         h1 { font-size: 24px !important; }
@@ -452,7 +456,7 @@ with tab2:
 안녕하세요, {pl_channel} 채널에 방문해 주셔서 감사합니다! ☕✨
 
 오늘 선곡한 플레이리스트는 '{playlist_title}' 입니다.
-복잡한 일상 속 집중이 필요하거나 편안한 휴식을 누리고 싶을 때 따뜻한 차 한 잔과 함께 감상해 보세요 🎶
+복잡한 일상 속 집중이 필요하거나 편안한 휴식을 누르고 싶을 때 따뜻한 차 한 잔과 함께 감상해 보세요 🎶
 
 [Tracklist & Timestamps]
 00:00 {song_title}
