@@ -4,8 +4,8 @@ import Streamlit as st
 import numpy as np
 
 # 쿠팡 파트너스 API 키 고정 (원하는 경우 아래 "" 안에 실제 키를 적어두세요)
-DEFAULT_CP_ACCESS_KEY = ""
-DEFAULT_CP_SECRET_KEY = ""
+DEFAULT_CP_ACCESS_KEY = "12145ccc-653f-4354-a41c-145a47a51982"
+DEFAULT_CP_SECRET_KEY = "dc141c877f6cb4b179417fc2a012099abf1a0697"
 
 # 쿠팡 API 불러오기
 try:
