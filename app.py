@@ -1,6 +1,6 @@
 import os
 import random
-import Streamlit as st
+import streamlit as st
 import numpy as np
 
 # 쿠팡 파트너스 API 키 고정 (원하는 경우 아래 "" 안에 실제 키를 적어두세요)
