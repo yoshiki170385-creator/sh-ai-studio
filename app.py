@@ -60,38 +60,55 @@ def create_capcut_draft(project_name, video_path, script_text):
 # -------------------------------------------------------------------
 # 3. Streamlit UI
 # -------------------------------------------------------------------
-st.set_page_config(page_title="상훈's AI - 샤오홍슈 캡컷 자동화", page_icon="✨", layout="wide")
+st.set_page_config(page_title="상훈's AI - 샤오홍슈 5개 대량 변환", page_icon="✨", layout="wide")
 
-st.title("✨ 상훈's AI - 샤오홍슈 대본 추출 & 캡컷 연동 스튜디오")
-st.caption("자막 없는 샤오홍슈 원본 영상을 올려주시면, 맞춤 대본 작성 후 캡컷(CapCut) 프로젝트로 즉시 내보냅니다.")
+st.title("✨ 상훈's AI - 샤오홍슈 5개 원본 영상 대량 변환 & 캡컷 연동")
+st.caption("최대 5개의 샤오홍슈 원본 영상을 동시에 올려 개별 대본 추출 및 캡컷 프로젝트로 즉시 변환합니다.")
 st.markdown("---")
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    uploaded_file = st.file_uploader("🇨🇳 샤오홍슈 원본 영상(.mp4) 업로드", type=["mp4", "mov"])
-    project_title = st.text_input("📁 캡컷 프로젝트명", value="SH_Clean_01")
-    product_name = st.text_input("🏷️ 상품명", value="휴대용 커피머신")
+    # 🎬 최대 5개까지 복수 파일 선택 가능
+    uploaded_files = st.file_uploader(
+        "🇨🇳 샤오홍슈 원본 영상(.mp4) 업로드 (최대 5개)", 
+        type=["mp4", "mov"], 
+        accept_multiple_files=True
+    )
+    
+    if uploaded_files and len(uploaded_files) > 5:
+        st.error("⚠️ 한 번에 최대 5개의 영상만 업로드할 수 있습니다. 5개까지만 선택해 주세요.")
+        uploaded_files = uploaded_files[:5]
+
+    project_base_title = st.text_input("📁 캡컷 프로젝트 기본 접두사", value="SH_Project")
+    product_name = st.text_input("🏷️ 대표 상품명", value="휴대용 커피머신")
     feature_desc = st.text_input("✨ 상품 특징", value="가성비 꿀템")
 
     channel_option = st.radio("📺 워터마크 채널 선택:", ["템빨item빨", "굿템빨", "핫템리뷰", "직접 입력"], horizontal=True)
     channel_name = st.text_input("채널명 직접 입력", value="꿀템창고") if channel_option == "직접 입력" else channel_option
 
-    if uploaded_file is not None:
-        temp_dir = "temp_process"
-        os.makedirs(temp_dir, exist_ok=True)
-        input_vpath = os.path.join(temp_dir, uploaded_file.name)
-        
-        with open(input_vpath, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+    if uploaded_files:
+        st.write(f"📁 **선택된 영상 총 {len(uploaded_files)}개**")
+        for idx, file in enumerate(uploaded_files, 1):
+            st.caption(f"{idx}. {file.name}")
 
-        st.video(input_vpath)
+        if st.button(f"🚀 영상 {len(uploaded_files)}개 일괄 분석 ➔ 대본 추출 & 캡컷 프로젝트 전체 생성"):
+            temp_dir = "temp_process"
+            os.makedirs(temp_dir, exist_ok=True)
+            
+            all_scripts = []
+            success_count = 0
 
-        if st.button("🚀 영상 분석 ➔ 대본 추출 & 캡컷 프로젝트 생성"):
-            with st.spinner("📹 영상을 분석하고 캡컷 드래프트 프로젝트를 생성하는 중..."):
-                # 타임라인 맞춤 바이럴 대본 생성
-                detail = f" {feature_desc}" if feature_desc else ""
-                script_text = f"""[🔥 샤오홍슈 원본 맞춤 쇼츠 대본 - {product_name}]
+            with st.spinner(f"📹 총 {len(uploaded_files)}개의 영상을 일괄 처리 중..."):
+                for idx, file in enumerate(uploaded_files, 1):
+                    input_vpath = os.path.join(temp_dir, file.name)
+                    with open(input_vpath, "wb") as f:
+                        f.write(file.getbuffer())
+
+                    current_proj_title = f"{project_base_title}_{idx:02d}_{file.name.split('.')[0]}"
+                    detail = f" {feature_desc}" if feature_desc else ""
+                    
+                    script_text = f"""[🔥 영상 #{idx} ({file.name}) 맞춤 쇼츠 대본 - {product_name}]
 
 🎬 [00:00~00:03] 초반 후킹 (시선 고정)
 "진작 살 걸 왜 이제 샀을까 고민했던 바로 그 아이템 {product_name}{detail}!"
@@ -105,25 +122,28 @@ with col1:
 🎬 [00:22~00:28] 채널 구독 및 반응 유도 (CTA)
 "🔔 더 많은 가성비 살림 꿀템 정보가 궁금하시다면 '{channel_name}' 구독과 좋아요 부탁드립니다!"
 """
-                st.session_state["script_text"] = script_text
+                    all_scripts.append(script_text)
 
-                # 캡컷 드래프트 생성
-                success, msg = create_capcut_draft(project_title, input_vpath, script_text)
-                
-                if success:
-                    st.success(f"🎉 캡컷 프로젝트 생성 완료: '{project_title}'")
-                    st.balloons()
-                else:
-                    st.error(msg)
+                    # 캡컷 드래프트 생성
+                    success, msg = create_capcut_draft(current_proj_title, input_vpath, script_text)
+                    if success:
+                        success_count += 1
+
+            st.session_state["combined_scripts"] = "\n\n" + ("="*50) + "\n\n".join(all_scripts)
+            
+            if success_count == len(uploaded_files):
+                st.success(f"🎉 총 {success_count}개 영상의 캡컷 프로젝트 생성이 완료되었습니다!")
+                st.balloons()
+            else:
+                st.warning(f"⚠️ {success_count}/{len(uploaded_files)}개 프로젝트가 생성되었습니다.")
 
 with col2:
-    st.subheader("📋 추출/생성된 대본 & 마케팅 패키지")
-    if "script_text" in st.session_state:
-        st.text_area("✍️ 캡컷 타임라인용 대본 (TTS 복사용)", value=st.session_state["script_text"], height=380)
+    st.subheader("📋 일괄 추출된 대본 모음")
+    if "combined_scripts" in st.session_state:
+        st.text_area("✍️ 전체 영상 타임라인 대본 (TTS 복사용)", value=st.session_state["combined_scripts"], height=480)
         st.info("""
-💡 **작업 마무리 순서:**
+💡 **대량 작업 마무리 순서:**
 1. PC에서 **캡컷(CapCut)**을 엽니다.
-2. [최근 프로젝트]에 새로 생성된 **프로젝트**를 클릭합니다.
-3. 왼쪽 대본 박스 내용을 복사하여 **캡컷 텍스트(TTS 음성 및 자막)**를 입힙니다.
-4. 상단/하단에 **채널 워터마크**만 넣고 최종 수출하시면 끝납니다!
+2. [최근 프로젝트]에 순서대로 생성된 **프로젝트들**을 각각 클릭합니다.
+3. 오른쪽 영역에 정리된 영상별 대본을 복사해서 **TTS 및 자막**을 넣고 수출하시면 끝납니다!
 """)
