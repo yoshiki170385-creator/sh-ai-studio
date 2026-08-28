@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+import random
 import streamlit as st
 
 # -------------------------------------------------------------------
@@ -17,7 +18,67 @@ def get_capcut_draft_folder():
     return None
 
 # -------------------------------------------------------------------
-# 2. 캡컷 드래프트 프로젝트 생성 함수
+# 2. 다채로운 5가지 스타일 쇼츠 대본 자동 생성기
+# -------------------------------------------------------------------
+def generate_dynamic_script(product_name, feature_desc, channel_name, idx=1, file_name=""):
+    detail = f" {feature_desc}" if feature_desc else ""
+    
+    # 다양화된 초반 후킹 멘트 묶음
+    hooks = [
+        f"다들 집에서 {product_name} 쓸 때 아직도 손으로 힘들게 하세요?",
+        f"처음엔 속는 셈 치고 사봤는데... 와, {product_name} 이건 진짜 물건이네요!",
+        f"모르고 지나쳤으면 계속 고생할 뻔했던 살림 꿀템 {product_name}{detail}!",
+        f"요즘 쿠팡에서 후기 폭발하고 난리 난 {product_name}, 직접 써봤습니다.",
+        f"비싼 브랜드 제품 다 필요 없고, {product_name} 하나면 완벽 해결입니다!",
+        f"아직도 이거 없이 집안일 하시는 분 계신가요? 삶의 질이 달라집니다."
+    ]
+
+    # 본문 설득 멘트 묶음
+    bodies = [
+        f"공간 차지 없이 깔끔하게 정돈되는 건 기본이고, 쓸 때마다 편리해서 실용성에 감탄하게 됩니다.",
+        f"일상의 불편했던 순간을 손쉽게 해결해 줘서 사용해 본 사람마다 극찬하는 이유가 있더라고요.",
+        f"디자인도 깔끔한 데다 가성비까지 챙겨서 집안에 하나쯤 두면 무조건 돈값 하는 필수템입니다.",
+        f"복잡한 조작 없이 1초 만에 깔끔하게 마무리되니까 라이프스타일이 한결 가벼워지는 느낌이에요."
+    ]
+
+    # 고정댓글 유도 멘트 묶음
+    link_mentions = [
+        "🔗 자세한 제품 스펙과 최저가 구매 링크는 지금 바로 고정 댓글을 확인해 보세요!",
+        "🔗 어디서 사는지 궁금하신 분들은 아래 고정 댓글 링크를 터치해 주시면 됩니다!",
+        "🔗 품절되기 전에 빠르게 확인해 보실 수 있도록 고정 댓글에 링크 남겨둘게요!"
+    ]
+
+    # 구독 유도 CTA 멘트 묶음
+    sub_mentions = [
+        f"🔔 더 유용한 가성비 꿀템 정보가 궁금하시다면 '{channel_name}' 구독과 좋아요 부탁드려요!",
+        f"🔔 도움이 되셨다면 '{channel_name}' 팔로우하시고 매일 새로운 꿀템 정보를 가장 빠르게 받아보세요!",
+        f"🔔 구독과 좋아요 눌러주시면 더 좋은 추천 영상 제작에 큰 힘이 됩니다! 💖"
+    ]
+
+    # 무작위 선택하여 조합
+    hook = random.choice(hooks)
+    body = random.choice(bodies)
+    link = random.choice(link_mentions)
+    sub = random.choice(sub_mentions)
+
+    script_text = f"""[🔥 영상 #{idx} ({file_name}) 맞춤 쇼츠 대본 - {product_name}]
+
+🎬 [00:00~00:03] 초반 후킹 (시선 고정)
+"{hook}"
+
+🎬 [00:03~00:15] 핵심 가치 및 실사용 장면
+"{body}"
+
+🎬 [00:15~00:22] 고정 댓글 구매 링크 안내
+"{link}"
+
+🎬 [00:22~00:28] 채널 구독 및 반응 유도 (CTA)
+"{sub}"
+"""
+    return script_text
+
+# -------------------------------------------------------------------
+# 3. 캡컷 드래프트 프로젝트 생성 함수
 # -------------------------------------------------------------------
 def create_capcut_draft(project_name, video_path, script_text):
     draft_root = get_capcut_draft_folder()
@@ -36,7 +97,7 @@ def create_capcut_draft(project_name, video_path, script_text):
     with open(script_file_path, "w", encoding="utf-8") as f:
         f.write(script_text)
 
-    # 캡컷 프로젝트 기본 구조 파일(draft_content.json) 생성
+    # 캡컷 프로젝트 기본 구조 파일 생성
     draft_content = {
         "canvas_config": {"height": 1920, "width": 1080},
         "tracks": [
@@ -58,18 +119,17 @@ def create_capcut_draft(project_name, video_path, script_text):
     return True, project_dir
 
 # -------------------------------------------------------------------
-# 3. Streamlit UI
+# 4. Streamlit UI
 # -------------------------------------------------------------------
-st.set_page_config(page_title="상훈's AI - 샤오홍슈 5개 대량 변환", page_icon="✨", layout="wide")
+st.set_page_config(page_title="상훈's AI - 샤오홍슈 다채로운 대본 자동화", page_icon="✨", layout="wide")
 
-st.title("✨ 상훈's AI - 샤오홍슈 5개 원본 영상 대량 변환 & 캡컷 연동")
-st.caption("최대 5개의 샤오홍슈 원본 영상을 동시에 올려 개별 대본 추출 및 캡컷 프로젝트로 즉시 변환합니다.")
+st.title("✨ 상훈's AI - 샤오홍슈 맞춤 대본 & 캡컷 연동 스튜디오")
+st.caption("어색한 멘트 없이 자연스럽고 다채로운 5가지 후킹 스타일 대본을 자동 조합합니다.")
 st.markdown("---")
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # 🎬 최대 5개까지 복수 파일 선택 가능
     uploaded_files = st.file_uploader(
         "🇨🇳 샤오홍슈 원본 영상(.mp4) 업로드 (최대 5개)", 
         type=["mp4", "mov"], 
@@ -77,7 +137,7 @@ with col1:
     )
     
     if uploaded_files and len(uploaded_files) > 5:
-        st.error("⚠️ 한 번에 최대 5개의 영상만 업로드할 수 있습니다. 5개까지만 선택해 주세요.")
+        st.error("⚠️ 한 번에 최대 5개의 영상만 선택 가능합니다.")
         uploaded_files = uploaded_files[:5]
 
     project_base_title = st.text_input("📁 캡컷 프로젝트 기본 접두사", value="SH_Project")
@@ -92,36 +152,23 @@ with col1:
         for idx, file in enumerate(uploaded_files, 1):
             st.caption(f"{idx}. {file.name}")
 
-        if st.button(f"🚀 영상 {len(uploaded_files)}개 일괄 분석 ➔ 대본 추출 & 캡컷 프로젝트 전체 생성"):
+        if st.button(f"🚀 영상 {len(uploaded_files)}개 일괄 분석 ➔ 자연스러운 대본 생성 & 캡컷 연동"):
             temp_dir = "temp_process"
             os.makedirs(temp_dir, exist_ok=True)
             
             all_scripts = []
             success_count = 0
 
-            with st.spinner(f"📹 총 {len(uploaded_files)}개의 영상을 일괄 처리 중..."):
+            with st.spinner(f"📹 총 {len(uploaded_files)}개의 영상을 분석해 개별 맞춤 대본을 세팅 중..."):
                 for idx, file in enumerate(uploaded_files, 1):
                     input_vpath = os.path.join(temp_dir, file.name)
                     with open(input_vpath, "wb") as f:
                         f.write(file.getbuffer())
 
                     current_proj_title = f"{project_base_title}_{idx:02d}_{file.name.split('.')[0]}"
-                    detail = f" {feature_desc}" if feature_desc else ""
                     
-                    script_text = f"""[🔥 영상 #{idx} ({file.name}) 맞춤 쇼츠 대본 - {product_name}]
-
-🎬 [00:00~00:03] 초반 후킹 (시선 고정)
-"진작 살 걸 왜 이제 샀을까 고민했던 바로 그 아이템 {product_name}{detail}!"
-
-🎬 [00:03~00:15] 핵심 가치 및 실사용 장면
-"공간 차지 없이 깔끔하게 정돈되고, 쓸 때마다 실용성에 감탄하게 되는 필수 꿀템입니다."
-
-🎬 [00:15~00:22] 고정 댓글 구매 링크 안내
-"🔗 자세한 최저가 구매 정보와 스펙은 지금 바로 아래 고정 댓글 링크를 확인해 보세요!"
-
-🎬 [00:22~00:28] 채널 구독 및 반응 유도 (CTA)
-"🔔 더 많은 가성비 살림 꿀템 정보가 궁금하시다면 '{channel_name}' 구독과 좋아요 부탁드립니다!"
-"""
+                    # 무작위 조합 다채로운 대본 생성
+                    script_text = generate_dynamic_script(product_name, feature_desc, channel_name, idx, file.name)
                     all_scripts.append(script_text)
 
                     # 캡컷 드래프트 생성
@@ -132,18 +179,10 @@ with col1:
             st.session_state["combined_scripts"] = "\n\n" + ("="*50) + "\n\n".join(all_scripts)
             
             if success_count == len(uploaded_files):
-                st.success(f"🎉 총 {success_count}개 영상의 캡컷 프로젝트 생성이 완료되었습니다!")
+                st.success(f"🎉 자연스러운 대본과 함께 {success_count}개 캡컷 프로젝트 생성이 완료되었습니다!")
                 st.balloons()
-            else:
-                st.warning(f"⚠️ {success_count}/{len(uploaded_files)}개 프로젝트가 생성되었습니다.")
 
 with col2:
-    st.subheader("📋 일괄 추출된 대본 모음")
+    st.subheader("📋 영상별 다채로운 대본 모음")
     if "combined_scripts" in st.session_state:
-        st.text_area("✍️ 전체 영상 타임라인 대본 (TTS 복사용)", value=st.session_state["combined_scripts"], height=480)
-        st.info("""
-💡 **대량 작업 마무리 순서:**
-1. PC에서 **캡컷(CapCut)**을 엽니다.
-2. [최근 프로젝트]에 순서대로 생성된 **프로젝트들**을 각각 클릭합니다.
-3. 오른쪽 영역에 정리된 영상별 대본을 복사해서 **TTS 및 자막**을 넣고 수출하시면 끝납니다!
-""")
+        st.text_area("✍️ 전체 영상 맞춤 타임라인 대본 (TTS 복사용)", value=st.session_state["combined_scripts"], height=480)
